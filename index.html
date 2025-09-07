@@ -16,6 +16,8 @@
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <!-- Cropper.js CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.css" rel="stylesheet">
   <style>
     .tooltip {
       position: relative;
@@ -67,7 +69,10 @@
         </label>
         <input type="file" id="file" accept="image/*" class="mb-4 w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400" />
 
-        <img id="preview" class="mb-4 rounded-xl shadow-lg hidden mx-auto" style="max-height: 200px;" alt="Image preview" />
+        <img id="preview" class="mb-4 rounded-xl shadow-lg hidden mx-auto" style="max-height: 300px;" alt="Image preview" />
+        <div id="cropControls" class="hidden flex flex-col items-center mb-4">
+          <button id="cropBtn" class="mt-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded shadow">Crop & Use Photo</button>
+        </div>
 
         <button type="submit" class="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white py-2 px-4 rounded-xl font-bold shadow">Analyze</button>
       </form>
@@ -95,8 +100,8 @@
           <ul class="mt-2 text-base text-gray-700 dark:text-gray-300 space-y-1">
             <li>Afnan K.A Rafi</li>
             <li>Sarvesh Eswar</li>
-            <li>Akhit Rajeswaran</li>
-            <li>Satwick Shenoy</li>
+            <li>Akshit Rajeendran</li>
+            <li>Sathvik Shenoy</li>
           </ul>
         </div>
         <p class="mt-4 text-sm text-gray-500 dark:text-gray-400">
@@ -107,22 +112,59 @@
   </div>
 
   <script>
-    document.getElementById('file').addEventListener('change', function (event) {
-      const file = event.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-          const preview = document.getElementById('preview');
-          preview.src = e.target.result;
-          preview.classList.remove('hidden');
-        };
-        reader.readAsDataURL(file);
-      }
+let cropper;
+
+document.getElementById('file').addEventListener('change', function (event) {
+  const file = event.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const preview = document.getElementById('preview');
+      preview.src = e.target.result;
+      preview.classList.remove('hidden');
+
+      // Destroy previous cropper if exists
+      if (cropper) cropper.destroy();
+
+      // Initialize cropper
+      cropper = new Cropper(preview, {
+        viewMode: 1,
+        autoCropArea: 1,
+        movable: true,
+        zoomable: true,
+        scalable: true,
+        cropBoxResizable: true,
+        background: false
+      });
+
+      document.getElementById('cropControls').classList.remove('hidden');
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+document.getElementById('cropBtn').addEventListener('click', function () {
+  if (cropper) {
+    // Get cropped image data
+    const croppedCanvas = cropper.getCroppedCanvas({
+      width: 300,
+      height: 300,
+      imageSmoothingQuality: 'high'
     });
+    const preview = document.getElementById('preview');
+    preview.src = croppedCanvas.toDataURL();
+    cropper.destroy();
+    cropper = null;
+    document.getElementById('cropControls').classList.add('hidden');
+  }
+});
   </script>
 
+  <!-- Cropper.js JS -->
+<script src="https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.js"></script>
   <script src="script.js"></script>
 </body>
 
 
-</html>
+</html><!-- Cropper.js JS -->
+<script src="https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.js"></script>

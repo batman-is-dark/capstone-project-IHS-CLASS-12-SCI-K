@@ -27,7 +27,7 @@ document.getElementById("inputForm").addEventListener("submit", async function (
     try {
       const response = await axios({
         method: "POST",
-        url: "https://serverless.roboflow.com/skin-disease-b8har-wnzro/3",
+        url: "https://serverless.roboflow.com/skin-disease-b8har-wnzro/9",
         params: {
           api_key: "wtXzrMfuDcoZqmmww9zy"
         },
@@ -65,11 +65,12 @@ document.getElementById("inputForm").addEventListener("submit", async function (
           "Premature graying of hair",
           "Loss of skin color"
         ],
-        "SJS-TEN": [
-          "Painful red or purplish rash",
-          "Blisters on skin and mucous membranes",
-          "Fever",
-          "Fatigue"
+        Melanoma: [
+          "New or unusual growth on the skin",
+          "Change in size, shape, or color of a mole",
+          "Irregular borders",
+          "Multiple colors within a mole",
+          "Itching or bleeding"
         ]
       };
 
