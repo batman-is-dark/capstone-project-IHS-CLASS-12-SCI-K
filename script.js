@@ -27,7 +27,7 @@ document.getElementById("inputForm").addEventListener("submit", async function (
     try {
       const response = await axios({
         method: "POST",
-        url: "https://serverless.roboflow.com/skin-disease-b8har-wnzro/9",
+        url: "https://serverless.roboflow.com/skin-disease-b8har-wnzro/10",
         params: {
           api_key: "wtXzrMfuDcoZqmmww9zy"
         },
@@ -128,3 +128,4 @@ document.getElementById("inputForm").addEventListener("submit", async function (
 
   reader.readAsDataURL(file);
 });
+
