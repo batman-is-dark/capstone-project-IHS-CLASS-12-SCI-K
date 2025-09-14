@@ -11,45 +11,77 @@
   <!-- End Google Tag Manager -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DermaVision - Skin Disease Detection</title>
+  <title>DermaVision - AI Skin Disease Detection</title>
   <link rel="icon" type="image/x-icon" href="favicon.ico" />
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-  <!-- Cropper.js CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <style>
-    .tooltip {
-      position: relative;
-      display: inline-block;
-      cursor: pointer;
+    .gradient-bg {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #4facfe 100%);
+      background-size: 400% 400%;
+      animation: gradientShift 15s ease infinite;
     }
 
-    .tooltip .tooltiptext {
-      visibility: hidden;
-      width: 200px;
-      background-color: #333;
-      color: #fff;
-      text-align: center;
-      border-radius: 6px;
-      padding: 8px;
-      position: absolute;
-      z-index: 1;
-      bottom: 125%;
-      left: 50%;
-      margin-left: -100px;
-      opacity: 0;
-      transition: opacity 0.3s;
+    @keyframes gradientShift {
+      0% {
+        background-position: 0% 50%;
+      }
+
+      50% {
+        background-position: 100% 50%;
+      }
+
+      100% {
+        background-position: 0% 50%;
+      }
     }
 
-    .tooltip:hover .tooltiptext {
-      visibility: visible;
-      opacity: 1;
+    .glass-effect {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .disease-card {
+      transition: all 0.3s ease;
+    }
+
+    .disease-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .crop-container {
+      max-height: 300px;
+      overflow: hidden;
+    }
+
+    @media (max-width: 640px) {
+      .crop-container {
+        max-height: 220px;
+      }
+    }
+
+    .pulse-animation {
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.7;
+      }
     }
   </style>
 </head>
 
-<body class="min-h-screen bg-gradient-to-br from-blue-400 via-purple-200 to-pink-300 dark:from-indigo-900 dark:via-purple-900 dark:to-pink-900 text-gray-900 dark:text-gray-100 relative overflow-x-hidd[...]">
+<body class="min-h-screen gradient-bg font-sans">
   <!-- Google Tag Manager (noscript) -->
   <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5M8M4FNJ"
   height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
@@ -61,6 +93,16 @@
   <div class="relative z-10">
     <div class="min-h-screen flex flex-col items-center justify-center p-4">
       <h1 class="text-5xl font-extrabold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 drop-shadow-lg">DermaVision</h1>
+
+      <!-- Place after your <h1> and intro paragraph -->
+      <div class="max-w-xl mx-auto mt-2 mb-8 text-center bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50 rounded-xl p-4 shadow border border-blue-200">
+        <h2 class="text-xl font-bold text-blue-700 mb-2">About DermaVision</h2>
+        <p class="text-base text-gray-700">
+          DermaVision is a skin disease detection website created as part of our capstone project by IHS students.
+          Our AI-powered system helps you identify common skin conditions from uploaded images, making skin health more accessible and understandable.
+        </p>
+      </div>
+
       <form id="inputForm" class="w-full max-w-md p-6 bg-white/80 dark:bg-gray-800/80 shadow-2xl rounded-xl border border-blue-200 dark:border-gray-700 backdrop-blur">
         <label class="block mb-2 text-lg font-semibold text-blue-700 dark:text-blue-300">Upload Image
           <span class="tooltip">🛈
@@ -84,16 +126,108 @@
         <div id="symptomsContainer" class="mt-4"></div>
       </div>
 
-      <div class="mt-10 text-base text-gray-600 dark:text-gray-400 max-w-xl text-center bg-white/60 dark:bg-gray-800/60 rounded-xl p-6 shadow-lg backdrop-blur">
-        <p><strong>Medical Disclaimer:</strong> SkinSight provides AI-based analysis and is not a substitute for professional medical advice, diagnosis, or treatment. Always consult your dermatologist[...]
-        <p class="mt-2"><strong>Privacy Policy:</strong> Uploaded images are processed only for immediate prediction and are not stored.</p>
-        <p class="mt-2"><strong>Image Guidelines:</strong> Ensure your image is clear, focused, and taken in natural lighting for best accuracy.</p>
+      <div class="mt-10 max-w-xl mx-auto text-center bg-gradient-to-r from-yellow-50 via-white to-blue-50 rounded-xl p-6 shadow-lg border-l-4 border-yellow-400">
+        <h3 class="text-lg font-bold text-yellow-700 mb-2">Medical Disclaimer</h3>
+        <p class="text-base text-gray-800 mb-2">
+          <strong>DermaVision</strong> provides AI-based analysis and is not a substitute for professional medical advice, diagnosis, or treatment. Always consult your dermatologist or physician.
+        </p>
+        <hr class="my-4 border-blue-200">
+        <h3 class="text-lg font-bold text-blue-700 mb-2">Privacy Policy</h3>
+        <p class="text-base text-gray-800 mb-2">
+          Uploaded images are processed only for immediate prediction and are not stored.
+        </p>
+        <hr class="my-4 border-purple-200">
+        <h3 class="text-lg font-bold text-purple-700 mb-2">Image Guidelines</h3>
+        <p class="text-base text-gray-800">
+          Ensure your image is clear, focused, and taken in natural lighting for best accuracy.
+        </p>
       </div>
 
-      <div class="mt-12 max-w-xl mx-auto text-center bg-gradient-to-r from-purple-100 via-blue-100 to-pink-100 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800 rounded-xl p-6 shadow-lg border bor[...]
+      <!-- Currently Testing For block -->
+      <div class="w-full max-w-2xl mx-auto mt-10 mb-8">
+        <div class="bg-white/90 border border-blue-200 rounded-xl shadow flex flex-col md:flex-row items-center justify-center px-6 py-4 gap-4">
+          <span class="font-semibold text-blue-700 text-lg">Currently Testing For:</span>
+          <div class="flex flex-wrap gap-3 justify-center mt-2 md:mt-0">
+            <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-medium">Chickenpox</span>
+            <span class="bg-purple-100 text-purple-700 px-3 py-1 rounded-full font-medium">Vitiligo</span>
+            <span class="bg-pink-100 text-pink-700 px-3 py-1 rounded-full font-medium">Melanoma</span>
+            <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full font-medium">Nail Psoriasis</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Conditions We Detect panel -->
+      <section class="max-w-4xl mx-auto mb-8">
+        <h2 class="text-2xl md:text-3xl font-bold text-gray-800 text-center mb-6">Conditions We Detect</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <!-- Chickenpox Card -->
+          <div class="bg-white border border-blue-200 rounded-xl shadow p-6 flex flex-col items-start">
+            <span class="text-sm font-semibold text-orange-600 mb-2">Moderate</span>
+            <h3 class="font-bold text-lg text-gray-800 mb-2">Chickenpox</h3>
+            <p class="text-sm text-gray-600 mb-2">A highly contagious viral infection causing itchy, blister-like rash.</p>
+            <div class="mt-2">
+              <span class="font-semibold text-gray-700">Common Symptoms:</span>
+              <ul class="list-disc list-inside text-gray-700 text-sm mt-1">
+                <li>Red spots or blisters</li>
+                <li>Fever</li>
+                <li>Fatigue</li>
+                <li>Loss of appetite</li>
+              </ul>
+            </div>
+          </div>
+          <!-- Vitiligo Card -->
+          <div class="bg-white border border-purple-200 rounded-xl shadow p-6 flex flex-col items-start">
+            <span class="text-sm font-semibold text-green-600 mb-2">Mild</span>
+            <h3 class="font-bold text-lg text-gray-800 mb-2">Vitiligo</h3>
+            <p class="text-sm text-gray-600 mb-2">A condition causing loss of skin color in patches.</p>
+            <div class="mt-2">
+              <span class="font-semibold text-gray-700">Common Symptoms:</span>
+              <ul class="list-disc list-inside text-gray-700 text-sm mt-1">
+                <li>White patches on skin</li>
+                <li>Premature graying of hair</li>
+                <li>Loss of skin color</li>
+              </ul>
+            </div>
+          </div>
+          <!-- Nail Psoriasis Card -->
+          <div class="bg-white border border-green-200 rounded-xl shadow p-6 flex flex-col items-start">
+            <span class="text-sm font-semibold text-orange-600 mb-2">Moderate</span>
+            <h3 class="font-bold text-lg text-gray-800 mb-2">Nail Psoriasis</h3>
+            <p class="text-sm text-gray-600 mb-2">A condition affecting the nails, causing pitting & discoloration.</p>
+            <div class="mt-2">
+              <span class="font-semibold text-gray-700">Common Symptoms:</span>
+              <ul class="list-disc list-inside text-gray-700 text-sm mt-1">
+                <li>Pitting of nails</li>
+                <li>Discoloration</li>
+                <li>Thickening of nails</li>
+                <li>Separation of nail from nail bed</li>
+              </ul>
+            </div>
+          </div>
+          <!-- Melanoma Card -->
+          <div class="bg-white border border-pink-200 rounded-xl shadow p-6 flex flex-col items-start">
+            <span class="text-sm font-semibold text-red-600 mb-2">Severe</span>
+            <h3 class="font-bold text-lg text-gray-800 mb-2">Melanoma</h3>
+            <p class="text-sm text-gray-600 mb-2">A serious form of skin cancer that develops in melanocytes.</p>
+            <div class="mt-2">
+              <span class="font-semibold text-gray-700">Common Symptoms:</span>
+              <ul class="list-disc list-inside text-gray-700 text-sm mt-1">
+                <li>New or unusual growth on the skin</li>
+                <li>Change in size, shape, or color of a mole</li>
+                <li>Irregular borders</li>
+                <li>Multiple colors within a mole</li>
+                <li>Itching or bleeding</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Capstone/Team Members panel stays at the bottom -->
+      <div class="mt-12 max-w-xl mx-auto text-center bg-gradient-to-r from-purple-100 via-blue-100 to-pink-100 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800 rounded-xl p-6 shadow-lg border border-blue-200 dark:border-gray-700">
         <h3 class="text-xl font-bold mb-2 text-blue-700 dark:text-blue-300">Capstone Project</h3>
         <p class="text-base text-gray-700 dark:text-gray-300">
-          <strong>DermaVision</strong> is an original capstone project created by our team for academic purposes. All code, design, and content are our own work and not copied from any other website o[...]
+          <strong>DermaVision</strong> is an original capstone project created by our team for academic purposes. All code, design, and content are our own work and not copied from any other website or source.
         </p>
         <div class="mt-4">
           <span class="font-semibold text-blue-700 dark:text-blue-300">Team Members:</span>
