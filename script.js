@@ -39,48 +39,15 @@ document.getElementById("inputForm").addEventListener("submit", async function (
 
       console.log("API response:", response.data);
 
-      const predictionsObj = response.data.predictions;
-      const predictionKeys = Object.keys(predictionsObj);
-      const predictions = predictionKeys.map(key => ({
-        ...predictionsObj[key],
-        class: key
-      }));
+      const predictions = response.data.predictions; // This is already an array
       console.log("Predictions array:", predictions);
-
-      const symptomsDict = {
-        Chickenpox: [
-          "Red spots or blisters",
-          "Fever",
-          "Fatigue",
-          "Loss of appetite"
-        ],
-        Nail_psoriasis: [
-          "Pitting of nails",
-          "Discoloration",
-          "Thickening of nails",
-          "Separation of nail from nail bed"
-        ],
-        Vitiligo: [
-          "White patches on skin",
-          "Premature graying of hair",
-          "Loss of skin color"
-        ],
-        Melanoma: [
-          "New or unusual growth on the skin",
-          "Change in size, shape, or color of a mole",
-          "Irregular borders",
-          "Multiple colors within a mole",
-          "Itching or bleeding"
-        ]
-      };
 
       if (predictions.length > 0) {
         const bestPrediction = predictions.reduce((max, curr) =>
           curr.confidence > max.confidence ? curr : max
         );
         const truncatedConfidence = Math.floor(bestPrediction.confidence * 10000) / 100;
-        output.innerHTML = `<span class="text-4xl font-extrabold text-blue-700 dark:text-blue-400">🩺 ${bestPrediction.class}</span>`;
-
+        output.innerHTML = `<span class="text-4xl font-extrabold text-purple-700 dark:text-purple-400">${bestPrediction.class}</span>`;
         diseaseInfo.innerHTML = `
           <div class="flex flex-col items-center justify-center mt-2">
             <span class="font-bold text-2xl text-green-700 dark:text-green-400 bg-green-100 dark:bg-green-900/30 px-4 py-1 rounded shadow">
@@ -114,7 +81,7 @@ document.getElementById("inputForm").addEventListener("submit", async function (
           symptomsContainer.innerHTML = "";
         }
       } else {
-        output.textContent = "No disease detected.";
+        output.innerHTML = `<span class="text-2xl font-bold text-green-700">Error: Unable to analyze the image.</span>`;
         diseaseInfo.textContent = "";
         document.getElementById("symptomsContainer").innerHTML = "";
       }
@@ -129,5 +96,29 @@ document.getElementById("inputForm").addEventListener("submit", async function (
   reader.readAsDataURL(file);
 });
 
-
-
+const symptomsDict = {
+  Chickenpox: [
+    "Red spots or blisters",
+    "Fever",
+    "Fatigue",
+    "Loss of appetite"
+  ],
+  Nail_psoriasis: [
+    "Pitting of nails",
+    "Discoloration",
+    "Thickening of nails",
+    "Separation of nail from nail bed"
+  ],
+  Vitiligo: [
+    "White patches on skin",
+    "Premature graying of hair",
+    "Loss of skin color"
+  ],
+  Melanoma: [
+    "New or unusual growth on the skin",
+    "Change in size, shape, or color of a mole",
+    "Irregular borders",
+    "Multiple colors within a mole",
+    "Itching or bleeding"
+  ]
+};
