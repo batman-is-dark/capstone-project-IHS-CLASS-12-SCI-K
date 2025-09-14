@@ -27,9 +27,9 @@ document.getElementById("inputForm").addEventListener("submit", async function (
     try {
       const response = await axios({
         method: "POST",
-        url: "https://serverless.roboflow.com/skin-disease-b8har-wnzro/11",
+        url: "https://serverless.roboflow.com/12-capstone-weohq/1",
         params: {
-          api_key: "wtXzrMfuDcoZqmmww9zy"
+          api_key: "Xvx8Nof8B321kUWrdjZC"
         },
         data: base64String,
         headers: {
@@ -128,5 +128,6 @@ document.getElementById("inputForm").addEventListener("submit", async function (
 
   reader.readAsDataURL(file);
 });
+
 
 
