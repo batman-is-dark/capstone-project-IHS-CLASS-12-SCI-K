@@ -27,7 +27,7 @@ document.getElementById("inputForm").addEventListener("submit", async function (
     try {
       const response = await axios({
         method: "POST",
-        url: "https://serverless.roboflow.com/12-capstone-weohq/1",
+        url: "https://serverless.roboflow.com/12-capstone-weohq/2",
         params: {
           api_key: "Xvx8Nof8B321kUWrdjZC"
         },
@@ -122,3 +122,4 @@ const symptomsDict = {
     "Itching or bleeding"
   ]
 };
+
