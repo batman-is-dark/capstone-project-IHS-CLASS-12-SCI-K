@@ -8,6 +8,7 @@ document.getElementById("inputForm").addEventListener("submit", async function (
   const loadingSpinner = document.getElementById("loadingSpinner");
 
   resultContainer.classList.remove("hidden");
+  resultContainer.classList.add("fade-in");
   loadingSpinner.classList.remove("hidden");
   output.textContent = "";
   diseaseInfo.textContent = "";
@@ -27,7 +28,7 @@ document.getElementById("inputForm").addEventListener("submit", async function (
     try {
       const response = await axios({
         method: "POST",
-        url: "https://serverless.roboflow.com/12-capstone-weohq/2",
+        url: "https://serverless.roboflow.com/12-capstone-weohq/1",
         params: {
           api_key: "Xvx8Nof8B321kUWrdjZC"
         },
@@ -46,16 +47,20 @@ document.getElementById("inputForm").addEventListener("submit", async function (
         const bestPrediction = predictions.reduce((max, curr) =>
           curr.confidence > max.confidence ? curr : max
         );
+        let displayName = bestPrediction.class;
+        if (displayName === "Normal_nails" || displayName === "Normal_skin") {
+          displayName = "Normal Skin";
+        }
         const truncatedConfidence = Math.floor(bestPrediction.confidence * 10000) / 100;
-        output.innerHTML = `<span class="text-4xl font-extrabold text-purple-700 dark:text-purple-400">${bestPrediction.class}</span>`;
+        output.innerHTML = `<span class="text-4xl font-extrabold text-gray-900 dark:text-purple-400">${displayName}</span>`;
         diseaseInfo.innerHTML = `
           <div class="flex flex-col items-center justify-center mt-2">
-            <span class="font-bold text-2xl text-green-700 dark:text-green-400 bg-green-100 dark:bg-green-900/30 px-4 py-1 rounded shadow">
+            <span class="font-bold conf-badge text-2xl text-green-900 dark:text-green-400 bg-green-200 dark:bg-green-900/30 px-4 py-1 rounded shadow">
               Confidence: <span class="font-mono">${truncatedConfidence}%</span>
             </span>
-            <span class="mt-4 block text-base font-semibold text-purple-700 dark:text-purple-300 bg-purple-100 dark:bg-purple-900/30 px-4 py-2 rounded shadow">
+            <span class="mt-4 block powered-note text-base font-semibold text-purple-900 dark:text-purple-300 bg-purple-200 dark:bg-purple-900/30 px-4 py-2 rounded shadow">
               This result is powered by AI.<br>
-              <span class="font-normal text-gray-700 dark:text-gray-300">
+              <span class="font-normal desc-text text-gray-900 dark:text-gray-300">
                 For your health and peace of mind, please consult a dermatologist for a professional diagnosis.
               </span>
             </span>
@@ -67,14 +72,14 @@ document.getElementById("inputForm").addEventListener("submit", async function (
         const symptomsContainer = document.getElementById("symptomsContainer");
         if (symptoms) {
           symptomsContainer.innerHTML = `
-            <div class="mt-4 bg-blue-50 dark:bg-blue-900/30 rounded-xl p-4 shadow">
-              <p class="text-lg font-semibold text-blue-700 dark:text-blue-300 mb-2">
+            <div class="mt-4 bg-blue-100 border border-blue-200 dark:bg-blue-900/30 dark:border-gray-700 rounded-xl p-4 shadow">
+              <p class="text-lg font-semibold symptoms-heading text-blue-800 dark:text-blue-300 mb-2">
                 Do you also notice these common symptoms?
               </p>
-              <ul class="list-disc list-inside text-base text-gray-800 dark:text-gray-200">
-                ${symptoms.map(s => `<li>${s}</li>`).join("")}
-              </ul>
-              <p class="mt-2 text-sm text-blue-600 dark:text-blue-300">If you have these symptoms, please seek medical advice for proper care.</p>
+                  <ul class="list-disc list-inside text-base text-gray-900 dark:text-gray-200 symptoms-list">
+                    ${symptoms.map(s => `<li class=\"text-base symptom-item\">${s}</li>`).join("")}
+                  </ul>
+              <p class="mt-2 text-sm desc-text text-blue-700 dark:text-blue-300">If you have these symptoms, please seek medical advice for proper care.</p>
             </div>
           `;
         } else {
@@ -123,3 +128,26 @@ const symptomsDict = {
   ]
 };
 
+// Dark Mode Toggle
+document.getElementById('themeToggle').addEventListener('click', function() {
+  document.documentElement.classList.toggle('dark');
+  const icon = this.querySelector('i');
+  if (document.documentElement.classList.contains('dark')) {
+    icon.classList.remove('fa-moon');
+    icon.classList.add('fa-sun');
+    localStorage.setItem('theme', 'dark');
+  } else {
+    icon.classList.remove('fa-sun');
+    icon.classList.add('fa-moon');
+    localStorage.setItem('theme', 'light');
+  }
+});
+
+// Load theme on page load
+window.addEventListener('load', () => {
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme === 'dark') {
+    document.documentElement.classList.add('dark');
+    document.getElementById('themeToggle').querySelector('i').classList.replace('fa-moon', 'fa-sun');
+  }
+});

@@ -13,75 +13,406 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>DermaVision - AI Skin Disease Detection</title>
   <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  
+  <!-- Google Fonts for better typography -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome for medical icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <style>
+    /* Prevent horizontal overflow that causes side-scroll */
+    html, body { overflow-x: hidden; }
+    /* Custom medical-themed styles */
+    body {
+      font-family: 'Poppins', sans-serif;
+    }
+    
     .gradient-bg {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #4facfe 100%);
+      background: linear-gradient(135deg, 
+        #e6f3ff 0%, 
+        #f0e6ff 25%, 
+        #ffe6f3 50%, 
+        #e6fff0 75%, 
+        #fffbe6 100%);
       background-size: 400% 400%;
-      animation: gradientShift 15s ease infinite;
+      animation: gradientShift 20s ease infinite;
     }
-
+    
+    .dark .gradient-bg {
+      background: linear-gradient(135deg, 
+        #1a1a2e 0%, 
+        #16213e 25%, 
+        #0f3460 50%, 
+        #1a1a2e 75%, 
+        #16213e 100%);
+      background-size: 400% 400%;
+      animation: gradientShift 20s ease infinite;
+    }
+    
     @keyframes gradientShift {
-      0% {
-        background-position: 0% 50%;
-      }
-
-      50% {
-        background-position: 100% 50%;
-      }
-
-      100% {
-        background-position: 0% 50%;
-      }
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
-
+    
     .glass-effect {
-      background: rgba(255, 255, 255, 0.95);
+      background: rgba(255, 255, 255, 0.9);
       backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.3);
     }
-
+    
+    .dark .glass-effect {
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .soft-blue-bg {
+      /* slightly more saturated blue for light mode cards */
+      background: linear-gradient(135deg, #d9f6ff 0%, #bfeaff 100%);
+    }
+    
+    .dark .soft-blue-bg {
+      background: linear-gradient(135deg, #1e3a5f 0%, #2c4a6b 100%);
+    }
+    
+    .soft-purple-bg {
+      /* slightly more saturated purple for light mode cards */
+      background: linear-gradient(135deg, #f4e6ff 0%, #e6ccff 100%);
+    }
+    
+    .dark .soft-purple-bg {
+      background: linear-gradient(135deg, #3a2a5c 0%, #4a3a6c 100%);
+    }
+    
+    .soft-pink-bg {
+      /* slightly more saturated pink for light mode cards */
+      background: linear-gradient(135deg, #ffe6f4 0%, #ffcee9 100%);
+    }
+    
+    .dark .soft-pink-bg {
+      background: linear-gradient(135deg, #5c2a4a 0%, #6c3a5a 100%);
+    }
+    
+    .soft-green-bg {
+      /* slightly more saturated green for light mode cards */
+      background: linear-gradient(135deg, #e8fff4 0%, #caffea 100%);
+    }
+    
+    .dark .soft-green-bg {
+      background: linear-gradient(135deg, #2a5c3a 0%, #3a6c4a 100%);
+    }
+    
     .disease-card {
       transition: all 0.3s ease;
     }
-
+    
     .disease-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      transform: translateY(-5px);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
     }
-
+    
     .crop-container {
       max-height: 300px;
       overflow: hidden;
     }
-
+    
     @media (max-width: 640px) {
       .crop-container {
         max-height: 220px;
       }
     }
-
+    
+    .fade-in {
+      animation: fadeIn 0.6s ease-out;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
     .pulse-animation {
       animation: pulse 2s infinite;
     }
-
+    
     @keyframes pulse {
-      0%,
-      100% {
-        opacity: 1;
-      }
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+    
+    .medical-divider {
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #cbd5e0, transparent);
+      margin: 2rem 0;
+    }
 
-      50% {
-        opacity: 0.7;
+    /* Themed spinner that uses page accent colors and keeps good contrast */
+    .theme-spinner {
+      width: 3rem;
+      height: 3rem;
+      border-radius: 9999px;
+      border: 4px solid rgba(16,24,40,0.08);
+      border-top-color: #7c3aed; /* purple accent */
+      animation: spin 1s linear infinite;
+      box-sizing: border-box;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      color: #071227; /* strong dark for light mode */
+      font-weight: 600;
+    }
+
+    html.dark .theme-spinner {
+      border: 4px solid rgba(255,255,255,0.08);
+      border-top-color: #a78bfa; /* lighter purple in dark mode */
+    }
+
+    html.dark .loading-text {
+      color: #e6e6f0; /* light text in dark mode */
+    }
+
+    /* Prediction box styling for high contrast and themed look */
+    .prediction-box {
+      background: rgba(255,255,255,0.96);
+      border-radius: 0.75rem;
+      padding: 0.5rem 1rem;
+      box-shadow: 0 12px 32px rgba(16,24,40,0.08);
+      border: 1px solid rgba(16,24,40,0.04);
+      display: inline-block;
+    }
+
+    .prediction-title {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #0f172a; /* very dark for contrast */
+      margin: 0;
+      line-height: 1;
+    }
+
+    html.dark .prediction-box {
+      background: linear-gradient(180deg, rgba(17,24,39,0.9), rgba(17,24,39,0.85));
+      border: 1px solid rgba(255,255,255,0.06);
+      box-shadow: 0 12px 32px rgba(2,6,23,0.6);
+    }
+
+    html.dark .prediction-title {
+      color: #f8fafc; /* light text in dark mode */
+    }
+
+    /* Flowing/looping decorative gradient used behind main content (light mode) */
+    .flowing-bg {
+      background: linear-gradient(120deg, rgba(59,130,246,0.12) 0%, rgba(124,58,237,0.12) 35%, rgba(236,72,153,0.10) 65%, rgba(16,185,129,0.08) 100%);
+      background-size: 300% 300%;
+      animation: flowingGradient 14s linear infinite;
+      filter: blur(24px);
+    }
+
+    @keyframes flowingGradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Card entrance animation */
+    .anim-card {
+      opacity: 0;
+      transform: translateY(16px);
+      animation: cardIn 600ms cubic-bezier(.2,.9,.2,1) forwards;
+      will-change: transform, opacity;
+      transition: box-shadow 0.2s ease, transform 0.2s ease;
+    }
+
+    @keyframes cardIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Gentle hover lift for animated cards */
+    .anim-card:hover {
+      transform: translateY(-6px) scale(1.01);
+      box-shadow: 0 18px 40px rgba(16,24,40,0.12);
+    }
+
+    /* Inverse hover for dark mode: light glow instead of dark shadow */
+    .dark .anim-card:hover {
+      transform: translateY(-6px) scale(1.01);
+      /* subtle outer light glow */
+      box-shadow: 0 10px 30px rgba(255,255,255,0.06), 0 2px 6px rgba(255,255,255,0.03) inset;
+      /* slight translucent border to emphasize elevation */
+      border: 1px solid rgba(255,255,255,0.06);
+      /* gentle backdrop blur for a frosted lift effect */
+      backdrop-filter: blur(4px) saturate(120%);
+    }
+
+    /* Complementary text colors for condition cards in light mode only */
+    /* Blue card -> warm orange text */
+    html:not(.dark) .card-blue h3,
+    html:not(.dark) .card-blue .font-bold,
+    html:not(.dark) .card-blue p,
+    html:not(.dark) .card-blue ul li {
+      color: #f97316; /* warm orange (complementary to blue) */
+    }
+
+    /* Purple card -> amber/yellow text */
+    html:not(.dark) .card-purple h3,
+    html:not(.dark) .card-purple .font-bold,
+    html:not(.dark) .card-purple p,
+    html:not(.dark) .card-purple ul li {
+      color: #d97706; /* amber (complementary to purple) */
+    }
+
+    /* Pink card -> green text */
+    html:not(.dark) .card-pink h3,
+    html:not(.dark) .card-pink .font-bold,
+    html:not(.dark) .card-pink p,
+    html:not(.dark) .card-pink ul li {
+      color: #16a34a; /* green (complementary to pink) */
+    }
+
+    /* Green card -> magenta/pink text */
+    html:not(.dark) .card-green h3,
+    html:not(.dark) .card-green .font-bold,
+    html:not(.dark) .card-green p,
+    html:not(.dark) .card-green ul li {
+      color: #db2777; /* magenta (complementary to green) */
+    }
+
+    /* Ensure dark mode keeps its existing text colors */
+    html.dark .card-blue h3,
+    html.dark .card-purple h3,
+    html.dark .card-pink h3,
+    html.dark .card-green h3 {
+      color: inherit;
+    }
+
+    /* Preserve original white severity badges (e.g., MODERATE/MILD/SEVERE) which use .text-white */
+    html:not(.dark) .card-blue .text-white,
+    html:not(.dark) .card-purple .text-white,
+    html:not(.dark) .card-pink .text-white,
+    html:not(.dark) .card-green .text-white {
+      color: #ffffff !important;
+    }
+    
+    /* Stronger body text for policy panels in light mode */
+    html:not(.dark) .panel-body {
+      color: #071227 !important; /* deep nearly-black navy for stronger contrast */
+      font-weight: 500;
+    }
+
+    /* Light-mode-only gradient heading to add color and match aesthetics */
+    html:not(.dark) .accent-gradient-text {
+      background: linear-gradient(90deg, #2563eb 0%, #7c3aed 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      font-weight: 700;
+      text-shadow: 0 1px 0 rgba(255,255,255,0.6);
+    }
+
+    /* Descriptive text inside prediction/symptom boxes should be very bright in light mode for legibility */
+    html:not(.dark) .desc-text {
+      color: #ffffff !important; /* bright white for max contrast */
+      font-weight: 800 !important;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    }
+
+    /* Make the confidence badge a vivid pill with white text in light mode */
+    html:not(.dark) .conf-badge {
+      background: linear-gradient(90deg, #10b981 0%, #059669 100%) !important; /* vivid green gradient */
+      color: #ffffff !important;
+      font-weight: 800 !important;
+      box-shadow: 0 10px 28px rgba(16,185,129,0.16);
+      border: 1px solid rgba(5,150,105,0.08);
+    }
+
+    /* Powered-by note should be a saturated purple/indigo pill with white text */
+    html:not(.dark) .powered-note {
+      background: linear-gradient(90deg, #7c3aed 0%, #a78bfa 100%) !important; /* bright purple */
+      color: #ffffff !important;
+      font-weight: 700 !important;
+      box-shadow: 0 12px 36px rgba(124,58,237,0.12);
+      border: 1px solid rgba(124,58,237,0.06);
+    }
+
+    /* Symptoms heading: bright gradient text for emphasis in light mode */
+    html:not(.dark) .symptoms-heading {
+      background: linear-gradient(90deg, #2563eb 0%, #06b6d4 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent !important; /* gradient-clip text shows as bright */
+      font-weight: 800 !important;
+      text-shadow: 0 1px 0 rgba(255,255,255,0.65);
+    }
+
+    /* Make symptom list items brighter and bolder in light mode */
+    html:not(.dark) .symptoms-list li,
+    html:not(.dark) .symptom-item {
+      color: #ffffff !important; /* white for max contrast against the light-blue card */
+      font-weight: 700 !important; /* bolder text */
+      text-shadow: 0 1px 0 rgba(0,0,0,0.08);
+      line-height: 1.45;
+    }
+
+    /* 1920px-specific layout shifts and compensations were removed to restore original alignment */
+
+    /* Nudge the whole content 70px to the right on medium+ screens without breaking centering logic.
+       We use translateX so the centering math (margins) is preserved; center-1080 (>=1920px) still recenters with calc(). */
+    @media (min-width: 768px) {
+      /* No global site-shift at md breakpoint; layout-shifts are applied only at 1920px. */
+    }
+
+    /* Center the condition cards inside their grid cells and cancel any earlier manual margins
+       so the cards appear centered within the section. This affects layout so siblings will adapt. */
+    .conditions-grid {
+      justify-items: center; /* center items horizontally inside each grid cell */
+      align-items: start;    /* align items to top so heights remain consistent */
+    }
+
+    .conditions-grid .disease-card {
+      margin-left: 0 !important; /* override previous margin-based nudges */
+      margin-right: 0 !important;
+      justify-self: center; /* ensure each card centers in its grid cell */
+    }
+
+    /* Restore original card sizing and allow centering the whole group by offsetting left.
+       Fixed card width prevents unexpected shrinking; adjust px to taste. */
+    @media (min-width: 768px) {
+      .conditions-grid .disease-card {
+        width: 320px !important;
+        max-width: 320px !important;
+        min-width: 280px !important;
+      }
+      /* Make all cards a consistent height so Melanoma matches others */
+      .conditions-grid .disease-card {
+        height: 420px !important;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+      }
+      /* Allow content inside the card to scroll if it overflows the fixed height */
+      .conditions-grid .disease-card > ul,
+      .conditions-grid .disease-card > p,
+      .conditions-grid .disease-card .list-container {
+        overflow: auto;
       }
     }
   </style>
 </head>
 
-<body class="min-h-screen gradient-bg font-sans">
+<body class="min-h-screen gradient-bg font-sans text-gray-900 dark:text-gray-100 overflow-x-hidden">
+  <!-- Dark Mode Toggle -->
+  <button id="themeToggle" class="fixed top-4 right-4 bg-gray-200 dark:bg-gray-800 p-3 rounded-full shadow-lg z-20 transition-colors">
+  <i class="fa-solid fa-moon text-gray-900 dark:text-gray-200"></i>
+  </button>
   <!-- Google Tag Manager (noscript) -->
   <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5M8M4FNJ"
   height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
@@ -91,23 +422,29 @@
   <div class="absolute bottom-[-80px] right-[-80px] w-80 h-80 bg-pink-400 opacity-30 rounded-full blur-2xl z-0"></div>
   <div class="absolute top-1/3 left-1/2 w-56 h-56 bg-purple-400 opacity-20 rounded-full blur-2xl z-0"></div>
   <div class="relative z-10">
-    <div class="min-h-screen flex flex-col items-center justify-center p-4">
-      <h1 class="text-6xl md:text-7xl font-extrabold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 drop-shadow-lg">
+  <div class="min-h-screen flex flex-col items-center justify-center p-4 w-full max-w-6xl mx-auto">
+  <h1 class="derma-title text-6xl md:text-7xl font-extrabold mb-6 text-center text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 drop-shadow-lg dark:from-blue-400 dark:via-purple-400 dark:to-pink-400">
         DermaVision
       </h1>
 
+      <!-- Trust Badges -->
+      <div class="flex justify-center gap-4 mb-4">
+        <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium shadow dark:bg-green-900 dark:text-green-200">AI-Powered</span>
+        <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium shadow dark:bg-blue-900 dark:text-blue-200">Privacy Protected</span>
+      </div>
+
       <!-- Place after your <h1> and intro paragraph -->
-      <div class="max-w-xl mx-auto mt-2 mb-8 text-center bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50 rounded-xl p-4 shadow border border-blue-200">
-        <h2 class="text-xl font-bold text-blue-700 mb-2">About DermaVision</h2>
-        <p class="text-base text-gray-700">
+  <div class="max-w-xl mx-auto mt-2 mb-8 text-center bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50 rounded-xl p-4 shadow border border-blue-200 soft-blue-bg dark:from-gray-800 dark:via-gray-700 dark:to-gray-800 dark:border-gray-600 anim-card">
+        <h2 class="text-xl font-bold text-blue-700 mb-2 dark:text-blue-300">About DermaVision</h2>
+  <p class="text-base text-gray-900 dark:text-gray-300">
           DermaVision is a skin disease detection website created as part of our capstone project by IHS students.
           Our AI-powered system helps you identify common skin conditions from uploaded images, making skin health more accessible and understandable.
         </p>
       </div>
 
-      <form id="inputForm" class="w-full max-w-md p-6 bg-white rounded-2xl shadow-xl border-0" style="background: linear-gradient(90deg, #f9eaff 0%, #f3c6f7 100%);">
-        <label class="block mb-4 text-xl font-bold text-purple-700 flex items-center">
-          <span class="mr-2"><i class="fa-solid fa-cloud-arrow-up"></i> &#8682;</span>
+            <form id="inputForm" class="w-full max-w-md p-6 rounded-2xl shadow-xl border-0 soft-blue-bg">
+        <label class="block mb-4 text-xl font-bold text-purple-700 dark:text-purple-300 flex items-center">
+          <span class="mr-2"><i class="fa-solid fa-cloud-arrow-up"></i></span>
           Upload Image
           <span class="ml-2 text-blue-500 cursor-pointer" title="Upload clear images with good lighting and focused lesions.">
             <i class="fa-solid fa-circle-info"></i> &#9432;
@@ -121,51 +458,54 @@
         </div>
 
         <button type="submit" class="w-full bg-gradient-to-r from-purple-600 to-pink-400 hover:from-purple-700 hover:to-pink-500 text-white py-3 px-6 rounded-xl font-bold text-lg shadow flex items-center justify-center gap-2">
-          <span><i class="fa-solid fa-lightbulb"></i> &#128161;</span>
+            <span><i class="fa-solid fa-lightbulb"></i></span>
           Analyze with AI
         </button>
       </form>
 
-      <div id="resultContainer" class="hidden mt-8 text-center">
+      <div id="resultContainer" class="hidden mt-8 text-center soft-green-bg rounded-2xl p-6 shadow-xl">
         <div id="loadingSpinner" class="text-center py-8">
-          <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
-          <p class="text-white mt-4">Analyzing your image...</p>
+          <div class="theme-spinner mx-auto"></div>
+          <p class="loading-text mt-4">Analyzing your image...</p>
         </div>
-        <div class="inline-block bg-white/80 rounded-lg shadow px-4 py-2">
-          <h2 id="output" class="text-4xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 via-pink-500 to-blue-600 drop-shadow-lg"></h2>
+        <div class="prediction-box">
+          <h2 id="output" class="prediction-title" aria-live="polite"></h2>
         </div>
-        <p id="diseaseInfo" class="mt-2 max-w-md mx-auto text-base text-gray-700 dark:text-gray-300"></p>
+  <p id="diseaseInfo" class="mt-2 max-w-md mx-auto text-base text-gray-900 dark:text-gray-300"></p>
         <div id="symptomsContainer" class="mt-4"></div>
       </div>
 
+      <!-- Medical Divider -->
+      <div class="medical-divider"></div>
+
       <div class="mt-10 max-w-2xl mx-auto">
-        <!-- Medical Disclaimer -->
-        <div class="bg-white rounded-2xl shadow p-6 mb-6 border-0" style="background: linear-gradient(90deg, #ffe9c6 0%, #fffbe6 100%);">
+  <!-- Medical Disclaimer -->
+  <div class="bg-white rounded-2xl shadow p-6 mb-6 border-0 soft-pink-bg anim-card">
           <div class="flex items-center mb-2">
-            <span class="text-2xl text-yellow-600 mr-2"><i class="fa-solid fa-triangle-exclamation"></i> &#9888;</span>
-            <h3 class="text-2xl font-bold text-yellow-700">Medical Disclaimer</h3>
+            <span class="text-2xl text-yellow-600 mr-2"><i class="fa-solid fa-triangle-exclamation"></i></span>
+            <h3 class="text-2xl font-bold text-yellow-700 dark:text-yellow-300">Medical Disclaimer</h3>
           </div>
-          <p class="text-base text-gray-800">
+          <p class="text-base text-gray-900 dark:text-gray-300 panel-body">
             <strong>DermaVision</strong> provides AI-based analysis and is not a substitute for professional medical advice, diagnosis, or treatment. Always consult your dermatologist or physician for proper medical care and diagnosis. This tool is designed for educational and awareness purposes only.
           </p>
         </div>
-        <!-- Privacy Policy -->
-        <div class="bg-white rounded-2xl shadow p-6 mb-6 border-0" style="background: linear-gradient(90deg, #ffd6de 0%, #ffb3c6 100%);">
+  <!-- Privacy Policy -->
+  <div class="bg-white rounded-2xl shadow p-6 mb-6 border-0 soft-purple-bg anim-card">
           <div class="flex items-center mb-2">
-            <span class="text-2xl text-blue-600 mr-2"><i class="fa-solid fa-lock"></i> &#128274;</span>
-            <h3 class="text-2xl font-bold text-blue-700">Privacy Policy</h3>
+            <span class="text-2xl text-blue-600 mr-2"><i class="fa-solid fa-lock"></i></span>
+            <h3 class="text-2xl font-bold text-blue-700 dark:text-blue-300">Privacy Policy</h3>
           </div>
-          <p class="text-base text-gray-800">
+          <p class="text-base text-gray-900 dark:text-gray-300 panel-body">
             Your privacy is our priority. Uploaded images are processed only for immediate prediction and analysis. We do not store, save, or share your images with any third parties. All processing is done securely and your data remains confidential.
           </p>
         </div>
-        <!-- Image Guidelines -->
-        <div class="bg-white rounded-2xl shadow p-6 mb-6 border-0" style="background: linear-gradient(90deg, #e6d6ff 0%, #d6b3ff 100%);">
+  <!-- Image Guidelines -->
+  <div class="bg-white rounded-2xl shadow p-6 mb-6 border-0 soft-blue-bg anim-card">
           <div class="flex items-center mb-2">
-            <span class="text-2xl text-purple-600 mr-2"><i class="fa-solid fa-image"></i> &#128247;</span>
-            <h3 class="text-2xl font-bold text-purple-700">Image Guidelines</h3>
+            <span class="text-2xl text-purple-600 mr-2"><i class="fa-solid fa-image"></i></span>
+            <h3 class="text-2xl font-bold text-purple-700 dark:text-purple-300">Image Guidelines</h3>
           </div>
-          <p class="text-base text-gray-800">
+          <p class="text-base text-gray-900 dark:text-gray-300 panel-body">
             For optimal results, ensure your image is clear, well-focused, and taken in natural lighting. The affected area should be visible and unobstructed for accurate analysis.
           </p>
         </div>
@@ -173,28 +513,29 @@
 
       <!-- Currently Testing For block -->
       <div class="w-full max-w-2xl mx-auto mt-10 mb-8">
-        <div class="bg-white/90 border border-blue-200 rounded-xl shadow flex flex-col md:flex-row items-center justify-center px-6 py-4 gap-4">
-          <span class="font-semibold text-blue-700 text-lg">Currently Testing For:</span>
+        <div class="bg-white/90 border border-blue-200 rounded-xl shadow flex flex-col md:flex-row items-center justify-center px-6 py-4 gap-4 soft-green-bg dark:bg-gray-800/90 dark:border-gray-600 anim-card">
+          <span class="font-semibold text-blue-700 text-lg dark:text-blue-300">Currently Testing For:</span>
           <div class="flex flex-wrap gap-3 justify-center mt-2 md:mt-0">
-            <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-medium">Chickenpox</span>
-            <span class="bg-purple-100 text-purple-700 px-3 py-1 rounded-full font-medium">Vitiligo</span>
-            <span class="bg-pink-100 text-pink-700 px-3 py-1 rounded-full font-medium">Melanoma</span>
-            <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full font-medium">Nail Psoriasis</span>
+            <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-medium dark:bg-blue-900 dark:text-blue-200">Chickenpox</span>
+            <span class="bg-purple-100 text-purple-700 px-3 py-1 rounded-full font-medium dark:bg-purple-900 dark:text-purple-200">Vitiligo</span>
+            <span class="bg-pink-100 text-pink-700 px-3 py-1 rounded-full font-medium dark:bg-pink-900 dark:text-pink-200">Melanoma</span>
+            <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full font-medium dark:bg-green-900 dark:text-green-200">Nail Psoriasis</span>
           </div>
         </div>
       </div>
 
       <!-- Conditions We Detect panel -->
-      <section class="max-w-5xl mx-auto mb-8">
-        <h2 class="text-2xl md:text-3xl font-bold text-gray-800 text-center mb-6">Conditions We Detect</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+  <section class="max-w-6xl mx-auto mb-8 relative">
+        <div class="flowing-bg absolute inset-0 rounded-3xl -z-10 pointer-events-none"></div>
+  <h2 class="text-2xl md:text-3xl font-bold text-gray-900 text-center mb-6 dark:text-gray-200 accent-gradient-text">Conditions We Detect</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 conditions-grid">
           <!-- Chickenpox Card -->
-          <div class="bg-white rounded-2xl shadow-xl p-8 flex flex-col items-start" style="min-height: 400px;">
+          <div class="bg-white rounded-2xl shadow-xl p-8 flex flex-col items-start soft-blue-bg anim-card disease-card card-blue" style="min-height: 400px;">
             <span class="inline-block bg-orange-500 text-white text-xs font-bold px-4 py-1 rounded-full shadow mb-4">MODERATE</span>
-            <h3 class="font-extrabold text-2xl text-gray-900 mb-2">Chickenpox</h3>
-            <p class="text-base text-gray-700 mb-4">A highly contagious viral infection causing itchy, blister-like rash throughout the body.</p>
-            <span class="font-bold text-gray-900 mb-2">Common Symptoms:</span>
-            <ul class="space-y-2 text-base">
+            <h3 class="font-extrabold text-2xl text-gray-900 mb-2 dark:text-gray-100">Chickenpox</h3>
+            <p class="text-base text-gray-900 mb-4 dark:text-gray-300">A highly contagious viral infection causing itchy, blister-like rash throughout the body.</p>
+            <span class="font-bold text-gray-900 mb-2 dark:text-gray-100">Common Symptoms:</span>
+            <ul class="space-y-2 text-base text-gray-900 dark:text-gray-300">
               <li class="flex items-center"><span class="inline-block w-3 h-3 rounded-full bg-orange-400 mr-2"></span>Red spots or blisters</li>
               <li class="flex items-center"><span class="inline-block w-3 h-3 rounded-full bg-orange-400 mr-2"></span>Fever</li>
               <li class="flex items-center"><span class="inline-block w-3 h-3 rounded-full bg-orange-400 mr-2"></span>Fatigue</li>
@@ -202,24 +543,24 @@
             </ul>
           </div>
           <!-- Vitiligo Card -->
-          <div class="bg-white rounded-2xl shadow-xl p-8 flex flex-col items-start" style="min-height: 400px;">
+          <div class="bg-white rounded-2xl shadow-xl p-8 flex flex-col items-start soft-purple-bg anim-card disease-card card-purple" style="min-height: 400px;">
             <span class="inline-block bg-teal-400 text-white text-xs font-bold px-4 py-1 rounded-full shadow mb-4">MILD</span>
-            <h3 class="font-extrabold text-2xl text-gray-900 mb-2">Vitiligo</h3>
-            <p class="text-base text-gray-700 mb-4">A condition causing loss of skin color in patches due to melanocyte destruction.</p>
-            <span class="font-bold text-gray-900 mb-2">Common Symptoms:</span>
-            <ul class="space-y-2 text-base">
+            <h3 class="font-extrabold text-2xl text-gray-900 mb-2 dark:text-gray-100">Vitiligo</h3>
+            <p class="text-base text-gray-900 mb-4 dark:text-gray-300">A condition causing loss of skin color in patches due to melanocyte destruction.</p>
+            <span class="font-bold text-gray-900 mb-2 dark:text-gray-100">Common Symptoms:</span>
+            <ul class="space-y-2 text-base text-gray-900 dark:text-gray-300">
               <li class="flex items-center"><span class="inline-block w-3 h-3 rounded-full bg-teal-400 mr-2"></span>White patches on skin</li>
               <li class="flex items-center"><span class="inline-block w-3 h-3 rounded-full bg-teal-400 mr-2"></span>Premature graying of hair</li>
               <li class="flex items-center"><span class="inline-block w-3 h-3 rounded-full bg-teal-400 mr-2"></span>Loss of skin color</li>
             </ul>
           </div>
           <!-- Nail Psoriasis Card -->
-          <div class="bg-white rounded-2xl shadow-xl p-8 flex flex-col items-start" style="min-height: 400px;">
+          <div class="bg-white rounded-2xl shadow-xl p-8 flex flex-col items-start soft-pink-bg anim-card disease-card card-pink" style="min-height: 400px;">
             <span class="inline-block bg-orange-500 text-white text-xs font-bold px-4 py-1 rounded-full shadow mb-4">MODERATE</span>
-            <h3 class="font-extrabold text-2xl text-gray-900 mb-2">Nail Psoriasis</h3>
-            <p class="text-base text-gray-700 mb-4">A condition affecting the nails, causing pitting, discoloration, and structural changes.</p>
-            <span class="font-bold text-gray-900 mb-2">Common Symptoms:</span>
-            <ul class="space-y-2 text-base">
+            <h3 class="font-extrabold text-2xl text-gray-900 mb-2 dark:text-gray-100">Nail Psoriasis</h3>
+            <p class="text-base text-gray-900 mb-4 dark:text-gray-300">A condition affecting the nails, causing pitting, discoloration, and structural changes.</p>
+            <span class="font-bold text-gray-900 mb-2 dark:text-gray-100">Common Symptoms:</span>
+            <ul class="space-y-2 text-base text-gray-900 dark:text-gray-300">
               <li class="flex items-center"><span class="inline-block w-3 h-3 rounded-full bg-orange-400 mr-2"></span>Pitting of nails</li>
               <li class="flex items-center"><span class="inline-block w-3 h-3 rounded-full bg-orange-400 mr-2"></span>Discoloration</li>
               <li class="flex items-center"><span class="inline-block w-3 h-3 rounded-full bg-orange-400 mr-2"></span>Thickening of nails</li>
@@ -227,12 +568,12 @@
             </ul>
           </div>
           <!-- Melanoma Card -->
-          <div class="bg-white rounded-2xl shadow-xl p-8 flex flex-col items-start" style="min-height: 400px;">
+          <div class="bg-white rounded-2xl shadow-xl p-8 flex flex-col items-start soft-green-bg anim-card disease-card card-green" style="min-height: 400px;">
             <span class="inline-block bg-red-600 text-white text-xs font-bold px-4 py-1 rounded-full shadow mb-4">SEVERE</span>
-            <h3 class="font-extrabold text-2xl text-gray-900 mb-2">Melanoma</h3>
-            <p class="text-base text-gray-700 mb-4">A serious form of skin cancer that develops in melanocytes and requires immediate attention.</p>
-            <span class="font-bold text-gray-900 mb-2">Common Symptoms:</span>
-            <ul class="space-y-2 text-base">
+            <h3 class="font-extrabold text-2xl text-gray-900 mb-2 dark:text-gray-100">Melanoma</h3>
+            <p class="text-base text-gray-900 mb-4 dark:text-gray-300">A serious form of skin cancer that develops in melanocytes and requires immediate attention.</p>
+            <span class="font-bold text-gray-900 mb-2 dark:text-gray-100">Common Symptoms:</span>
+            <ul class="space-y-2 text-base text-gray-900 dark:text-gray-300">
               <li class="flex items-center"><span class="inline-block w-3 h-3 rounded-full bg-red-500 mr-2"></span>New unusual growth</li>
               <li class="flex items-center"><span class="inline-block w-3 h-3 rounded-full bg-red-500 mr-2"></span>Changing mole characteristics</li>
               <li class="flex items-center"><span class="inline-block w-3 h-3 rounded-full bg-red-500 mr-2"></span>Irregular borders</li>
@@ -243,35 +584,56 @@
         </div>
       </section>
 
+      <!-- Medical Divider -->
+      <div class="medical-divider"></div>
+
       <!-- Capstone/Team Members panel stays at the bottom -->
-      <div class="mt-12 max-w-2xl mx-auto text-center bg-gradient-to-r from-blue-100 via-purple-100 to-pink-100 rounded-2xl p-8 shadow-xl border border-blue-200">
+      <div class="mt-12 max-w-2xl mx-auto text-center bg-gradient-to-r from-blue-100 via-purple-100 to-pink-100 rounded-2xl p-8 shadow-xl border border-blue-200 soft-pink-bg">
         <div class="flex flex-col items-center mb-4">
-          <span class="text-4xl mb-2 text-purple-600"><i class="fa-solid fa-users"></i> 👥</span>
-          <h3 class="text-3xl font-extrabold mb-2 text-blue-700 bg-clip-text bg-gradient-to-r from-purple-600 via-blue-600 to-green-600 text-transparent">Capstone Project Team</h3>
+          <span class="text-4xl mb-2 text-purple-600"><i class="fa-solid fa-users"></i></span>
+          <h3 class="text-3xl font-extrabold mb-2 text-blue-700 bg-clip-text bg-gradient-to-r from-purple-600 via-blue-600 to-green-600 text-transparent dark:from-purple-400 dark:via-blue-400 dark:to-green-400">Capstone Project Team</h3>
         </div>
-        <p class="text-lg text-gray-700 mb-8">
+  <p class="text-lg text-gray-900 mb-8 dark:text-gray-300 panel-body">
           <strong>DermaVision</strong> is an original capstone project created by our dedicated team of IHS students. All code, design, and content represent our own innovative work and research in the field of medical AI applications.
         </p>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <div class="bg-white rounded-xl shadow p-4">
-            <span class="block text-lg font-bold text-purple-700 mb-1">Afnan K.A Rafi</span>
-            <span class="block text-sm text-gray-500">AI Developer</span>
+          <div class="bg-white rounded-xl shadow p-4 dark:bg-gray-700 anim-card">
+            <span class="block text-lg font-bold text-purple-700 mb-1 dark:text-purple-300">Afnan K.A Rafi</span>
+            <span class="block text-sm text-gray-600 dark:text-gray-400">AI Developer</span>
           </div>
-          <div class="bg-white rounded-xl shadow p-4">
-            <span class="block text-lg font-bold text-blue-700 mb-1">Sarvesh Eswar</span>
-            <span class="block text-sm text-gray-500">Log Book Expert</span>
+          <div class="bg-white rounded-xl shadow p-4 dark:bg-gray-700 anim-card">
+            <span class="block text-lg font-bold text-blue-700 mb-1 dark:text-blue-300">Sarvesh Eswar</span>
+            <span class="block text-sm text-gray-600 dark:text-gray-400">Log Book Expert</span>
           </div>
-          <div class="bg-white rounded-xl shadow p-4">
-            <span class="block text-lg font-bold text-green-700 mb-1">Akshit Rajeendran</span>
-            <span class="block text-sm text-gray-500">Website Developer</span>
+          <div class="bg-white rounded-xl shadow p-4 dark:bg-gray-700 anim-card">
+            <span class="block text-lg font-bold text-green-700 mb-1 dark:text-green-300">Akshit Rajeendran</span>
+            <span class="block text-sm text-gray-600 dark:text-gray-400">Website Developer</span>
           </div>
-          <div class="bg-white rounded-xl shadow p-4">
-            <span class="block text-lg font-bold text-green-600 mb-1">Sathvik Shenoy</span>
-            <span class="block text-sm text-gray-500">Data Expert</span>
+          <div class="bg-white rounded-xl shadow p-4 dark:bg-gray-700 anim-card">
+            <span class="block text-lg font-bold text-green-600 mb-1 dark:text-green-300">Sathvik Shenoy</span>
+            <span class="block text-sm text-gray-600 dark:text-gray-400">Data Expert</span>
           </div>
         </div>
-        <p class="text-sm text-gray-500 mt-4">&copy; 2025 Team DermaVision. All rights reserved.</p>
+  <p class="text-sm text-gray-600 mt-4 dark:text-gray-400">&copy; 2025 Team DermaVision. All rights reserved.</p>
       </div>
+
+      <!-- Footer with Contact -->
+      <footer class="mt-12 max-w-4xl mx-auto text-center">
+        <div class="glass-effect rounded-2xl p-6 shadow-xl soft-purple-bg">
+          <h3 class="text-xl font-bold text-gray-800 mb-4 dark:text-gray-200 accent-gradient-text">Need Help?</h3>
+          <p class="text-gray-600 mb-4 dark:text-gray-400">
+            For medical emergencies or concerns, please contact a healthcare professional immediately.
+          </p>
+          <div class="flex justify-center gap-4">
+            <a href="mailto:team@dermavision.com" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+              <i class="fa-solid fa-envelope mr-2"></i>Email Us
+            </a>
+            <a href="tel:+1234567890" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+              <i class="fa-solid fa-phone mr-2"></i>Call Support
+            </a>
+          </div>
+        </div>
+      </footer>
     </div>
   </div>
 
@@ -324,11 +686,22 @@ document.getElementById('cropBtn').addEventListener('click', function () {
 });
   </script>
 
-  <!-- Cropper.js JS -->
-<script src="https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.js"></script>
   <script src="script.js"></script>
+  <script>
+    // Stagger entrance for animated cards, respect reduced-motion
+    window.addEventListener('load', function () {
+      const cards = Array.from(document.querySelectorAll('.anim-card'));
+      if (!cards.length) return;
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        cards.forEach(c => { c.style.opacity = 1; c.style.transform = 'none'; });
+        return;
+      }
+      cards.forEach(function (el, i) {
+        el.style.animationDelay = (i * 80) + 'ms';
+      });
+    });
+  </script>
 </body>
 
 
-</html><!-- Cropper.js JS -->
-<script src="https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.js"></script>
+</html>
